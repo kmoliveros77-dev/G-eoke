@@ -1,0 +1,10 @@
+{
+  "name": "Global Videoke Mobile",
+  "short_name": "Videoke",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#070a12",
+  "theme_color": "#090d16",
+  "description": "Mobile-first Global Videoke App with Touchscreen Remote, Live Phone Mic Echo, and World Songbook."
+}
