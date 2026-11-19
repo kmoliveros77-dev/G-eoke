@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#090d16" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <title>Global Videoke Mobile</title>
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    :root {
+      --bg: #070a12;
+      --surface: #111827;
+      --surface-2: #1e293b;
+      --accent: #f43f5e;
+      --accent-glow: rgba(244, 63, 94, 0.35);
+      --cyan: #38bdf8;
+      --gold: #facc15;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --safe-top: env(safe-area-inset-top, 12px);
+      --safe-bottom: env(safe-area-inset-bottom, 12px);
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* Top Mobile App Bar */
+    .app-bar {
+      padding: calc(var(--safe-top) + 8px) 16px 10px;
+      background: rgba(17, 24, 39, 0.95);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 20;
+    }
+    .app-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo-pill {
+      width: 34px; height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), #8b5cf6);
+      display: grid; place-items: center;
+      font-size: 18px;
+      box-shadow: 0 0 14px var(--accent-glow);
+    }
+    .app-title h1 { font-size: 1rem; font-weight: 800; letter-spacing: 0.3px; }
+    .app-title span { font-size: 0.7rem; color: var(--cyan); display: block; }
+    .icon-btn {
+      background: var(--surface-2);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .icon-btn:active { transform: scale(0.95); }
+
+    /* Compact Sticky TV Stage */
+    .mobile-stage {
+      background: radial-gradient(circle at top, #1e1b4b 0%, #030712 100%);
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 215px;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .stage-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    .song-pill {
+      background: rgba(0,0,0,0.55);
+      border-left: 3px solid var(--accent);
+      padding: 4px 10px;
+      border-radius: 6px;
+      max-width: 74%;
+      overflow: hidden;
+    }
+    .song-pill .code { font-size: 0.68rem; color: var(--gold); font-weight: 800; }
+    .song-pill .name {
+      font-size: 0.88rem; font-weight: 700;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .score-pill {
+      background: rgba(0,0,0,0.55);
+      border: 1px solid rgba(250, 204, 21, 0.35);
+      padding: 4px 10px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .score-pill small { display: block; font-size: 0.58rem; color: var(--muted); }
+    .score-pill strong { font-size: 1rem; color: var(--gold); }
+
+    .lyrics-box {
+      text-align: center;
+      margin: 10px 0;
+      min-height: 76px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .lyric-main {
+      font-size: 1.22rem;
+      font-weight: 800;
+      color: var(--gold);
+      line-height: 1.3;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.9);
+      margin-bottom: 6px;
+    }
+    .lyric-sub {
+      font-size: 0.88rem;
+      color: rgba(255,255,255,0.65);
+      font-weight: 500;
+    }
+
+    .stage-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .mini-vis {
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      height: 20px;
+      flex: 1;
+    }
+    .v-bar {
+      width: 4px;
+      height: 4px;
+      background: linear-gradient(to top, var(--accent), var(--cyan));
+      border-radius: 2px;
+      transition: height 0.08s ease;
+    }
+    .transport-btns {
+      display: flex;
+      gap: 6px;
+    }
+    .t-btn {
+      background: var(--surface-2);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--text);
+      padding: 7px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+    .t-btn.play {
+      background: var(--accent);
+      border: none;
+      box-shadow: 0 2px 10px var(--accent-glow);
+    }
+
+    /* Main Scrollable Tab Views */
+    .view-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 14px 84px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .view-panel { display: none; }
+    .view-panel.active { display: block; }
+
+    /* Search & Horizontal Region Chips */
+    .search-input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid #334155;
+      background: var(--surface);
+      color: var(--text);
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+    }
+    .chip-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+      margin-bottom: 8px;
+      scrollbar-width: none;
+    }
+    .chip-scroll::-webkit-scrollbar { display: none; }
+    .chip {
+      white-space: nowrap;
+      padding: 7px 14px;
+      border-radius: 20px;
+      background: var(--surface);
+      color: var(--muted);
+      border: 1px solid rgba(255,255,255,0.08);
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .chip.active {
+      background: rgba(56, 189, 248, 0.18);
+      color: var(--cyan);
+      border-color: var(--cyan);
+    }
+
+    /* Mobile Song Cards */
+    .song-item {
+      background: var(--surface);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .song-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      flex: 1;
+    }
+    .code-badge {
+      background: #070a12;
+      color: var(--gold);
+      font-weight: 800;
+      font-size: 0.85rem;
+      padding: 8px 9px;
+      border-radius: 10px;
+      min-width: 48px;
+      text-align: center;
+    }
+    .song-details { min-width: 0; }
+    .song-details h3 {
+      font-size: 0.95rem;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      margin-bottom: 2px;
+    }
+    .song-details p {
+      font-size: 0.78rem;
+      color: var(--muted);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .song-actions {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .btn-q {
+      background: var(--surface-2);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 9px 11px;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+    .btn-sing {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 9px 13px;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    /* Mobile Keypad Remote Tab */
+    .keypad-card {
+      background: var(--surface);
+      border-radius: 18px;
+      padding: 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+      max-width: 380px;
+      margin: 0 auto;
+    }
+    .keypad-screen {
+      background: #05080f;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+      margin-bottom: 14px;
+    }
+    .keypad-screen .digits {
+      font-size: 2rem;
+      font-weight: 900;
+      letter-spacing: 6px;
+      color: var(--gold);
+      min-height: 42px;
+    }
+    .keypad-screen .preview {
+      font-size: 0.82rem;
+      color: var(--cyan);
+      margin-top: 4px;
+      min-height: 18px;
+    }
+    .num-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .num-btn {
+      background: var(--surface-2);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: var(--text);
+      font-size: 1.35rem;
+      font-weight: 800;
+      padding: 16px 0;
+      border-radius: 14px;
+    }
+    .num-btn:active { background: #334155; transform: scale(0.96); }
+    .num-btn.clear { color: #f87171; font-size: 1rem; }
+    .num-btn.enter {
+      background: linear-gradient(135deg, var(--accent), #e11d48);
+      border: none;
+      font-size: 1rem;
+    }
+
+    /* Mobile Audio Mixer Tab */
+    .mixer-card {
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 12px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .mixer-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+    .mixer-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+    .mix-btn {
+      background: var(--surface-2);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--text);
+      padding: 14px 8px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+    .mic-big-btn {
+      width: 100%;
+      padding: 16px;
+      border-radius: 14px;
+      font-size: 1rem;
+      font-weight: 800;
+      background: rgba(56, 189, 248, 0.16);
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+    }
+    .mic-big-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    /* Bottom Navigation Bar */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: rgba(17, 24, 39, 0.97);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid rgba(255,255,255,0.1);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      padding: 8px 4px calc(var(--safe-bottom) + 6px);
+      z-index: 30;
+    }
+    .nav-item {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      position: relative;
+    }
+    .nav-item .ico { font-size: 1.25rem; }
+    .nav-item.active { color: var(--accent); }
+    .badge-dot {
+      position: absolute;
+      top: -2px;
+      right: 22%;
+      background: var(--gold);
+      color: #000;
+      font-size: 0.65rem;
+      font-weight: 900;
+      padding: 1px 5px;
+      border-radius: 10px;
+    }
+
+    /* Bottom Sheet Modal */
+    .sheet-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75);
+      display: none;
+      align-items: flex-end;
+      z-index: 50;
+    }
+    .sheet-backdrop.open { display: flex; }
+    .sheet {
+      background: var(--surface);
+      width: 100%;
+      border-radius: 22px 22px 0 0;
+      padding: 20px 16px calc(var(--safe-bottom) + 20px);
+      border-top: 1px solid rgba(255,255,255,0.15);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .sheet input, .sheet select, .sheet textarea {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #334155;
+      background: #070a12;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    .toast {
+      position: fixed;
+      top: calc(var(--safe-top) + 60px);
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: #1e293b;
+      border: 1px solid var(--cyan);
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.22s ease;
+      z-index: 100;
+      white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+  <!-- Mobile App Bar -->
+  <header class="app-bar">
+    <div class="app-title">
+      <div class="logo-pill">🎤</div>
+      <div>
+        <h1>VIDEOKE MOBILE</h1>
+        <span>Global Offline Songbook</span>
+      </div>
+    </div>
+    <button class="icon-btn" onclick="openSheet()">+ Add Song</button>
+  </header>
+
+  <!-- Compact Mobile Karaoke Screen -->
+  <section class="mobile-stage">
+    <div class="stage-header">
+      <div class="song-pill">
+        <div class="code" id="stageCode">READY • TAP ANY SONG</div>
+        <div class="name" id="stageTitle">Global Videoke Lounge</div>
+      </div>
+      <div class="score-pill">
+        <small>SCORE</small>
+        <strong id="scoreDisplay">--</strong>
+      </div>
+    </div>
+
+    <div class="lyrics-box">
+      <div class="lyric-main" id="lyricCurrent">♪ Ready to Sing! ♪</div>
+      <div class="lyric-sub" id="lyricNext">Use Songbook or Remote Keypad below</div>
+    </div>
+
+    <div class="stage-footer">
+      <div class="mini-vis" id="visualizer"></div>
+      <div class="transport-btns">
+        <button class="t-btn play" id="playPauseBtn" onclick="togglePlay()">▶ Play</button>
+        <button class="t-btn" onclick="nextSong()">⏭</button>
+        <button class="t-btn" onclick="stopSong()">⏹</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mobile Views -->
+  <main class="view-container">
+    <!-- 1. Songbook Tab -->
+    <div class="view-panel active" id="panel-songs">
+      <input type="search" class="search-input" id="searchInput" placeholder="Search title, artist, country, code..." oninput="renderSongs()" />
+      <div class="chip-scroll" id="regionChips"></div>
+      <div id="songList"></div>
+    </div>
+
+    <!-- 2. Remote Keypad Tab -->
+    <div class="view-panel" id="panel-remote">
+      <div class="keypad-card">
+        <div class="keypad-screen">
+          <div class="digits" id="keypadDigits">---</div>
+          <div class="preview" id="keypadPreview">Enter 3-digit song code (e.g. 101)</div>
+        </div>
+        <div class="num-grid">
+          <button class="num-btn" onclick="pressDigit('1')">1</button>
+          <button class="num-btn" onclick="pressDigit('2')">2</button>
+          <button class="num-btn" onclick="pressDigit('3')">3</button>
+          <button class="num-btn" onclick="pressDigit('4')">4</button>
+          <button class="num-btn" onclick="pressDigit('5')">5</button>
+          <button class="num-btn" onclick="pressDigit('6')">6</button>
+          <button class="num-btn" onclick="pressDigit('7')">7</button>
+          <button class="num-btn" onclick="pressDigit('8')">8</button>
+          <button class="num-btn" onclick="pressDigit('9')">9</button>
+          <button class="num-btn clear" onclick="clearDigits()">CLEAR</button>
+          <button class="num-btn" onclick="pressDigit('0')">0</button>
+          <button class="num-btn enter" onclick="submitDigits()">RESERVE</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Queue Tab -->
+    <div class="view-panel" id="panel-queue">
+      <div id="queueList"></div>
+    </div>
+
+    <!-- 4. Mic & Key Mixer Tab -->
+    <div class="view-panel" id="panel-mixer">
+      <div class="mixer-card">
+        <div class="mixer-header">
+          <span>🎙 Phone Microphone &amp; Echo</span>
+          <span id="micStatus" style="color:var(--cyan);">OFF</span>
+        </div>
+        <button class="mic-big-btn" id="micBtn" onclick="toggleMic()">Tap to Turn On Live Mic + Echo</button>
+      </div>
+
+      <div class="mixer-card">
+        <div class="mixer-header">
+          <span>🎼 Key / Pitch Control</span>
+          <span id="pitchVal" style="color:var(--gold);">0</span>
+        </div>
+        <div class="mixer-row">
+          <button class="mix-btn" onclick="changePitch(-1)">♭ Lower (-1)</button>
+          <button class="mix-btn" onclick="resetPitch()">Normal (0)</button>
+          <button class="mix-btn" onclick="changePitch(1)">♯ Higher (+1)</button>
+        </div>
+      </div>
+
+      <div class="mixer-card">
+        <div class="mixer-header">
+          <span>⏱ Tempo Speed</span>
+          <span id="tempoVal" style="color:var(--gold);">100%</span>
+        </div>
+        <div class="mixer-row">
+          <button class="mix-btn" onclick="changeTempo(-5)">-5% Slower</button>
+          <button class="mix-btn" onclick="resetTempo()">100%</button>
+          <button class="mix-btn" onclick="changeTempo(5)">+5% Faster</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom Tab Navigation -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" id="nav-songs" onclick="switchView('songs')">
+      <span class="ico">🎵</span>
+      <span>Songbook</span>
+    </button>
+    <button class="nav-item" id="nav-remote" onclick="switchView('remote')">
+      <span class="ico">🔢</span>
+      <span>Remote</span>
+    </button>
+    <button class="nav-item" id="nav-queue" onclick="switchView('queue')">
+      <span class="ico">📋</span>
+      <span>Queue</span>
+      <span class="badge-dot" id="queueBadge">0</span>
+    </button>
+    <button class="nav-item" id="nav-mixer" onclick="switchView('mixer')">
+      <span class="ico">🎚</span>
+      <span>Mic &amp; Key</span>
+    </button>
+  </nav>
+
+  <!-- Add Song Bottom Sheet -->
+  <div class="sheet-backdrop" id="addSheet" onclick="if(event.target===this) closeSheet()">
+    <div class="sheet">
+      <h3 style="font-size:1.05rem;">Add Song to Mobile Songbook</h3>
+      <input type="text" id="newTitle" placeholder="Song Title" />
+      <input type="text" id="newArtist" placeholder="Artist Name" />
+      <div style="display:flex;gap:8px;">
+        <select id="newRegion">
+          <option value="OPM">OPM</option>
+          <option value="Global Pop">Global Pop</option>
+          <option value="K-Pop">K-Pop</option>
+          <option value="J-Pop">J-Pop</option>
+          <option value="Latin">Latin</option>
+          <option value="Rock">Rock</option>
+          <option value="Afrobeats">Afrobeats</option>
+        </select>
+        <input type="number" id="newBpm" value="110" placeholder="BPM" />
+      </div>
+      <textarea id="newLyrics" rows="4" placeholder="Paste lyrics (one line per phrase)..."></textarea>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-q" style="flex:1;padding:12px;" onclick="closeSheet()">Cancel</button>
+        <button class="btn-sing" style="flex:1;padding:12px;" onclick="saveNewSong()">Save Song</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const DEFAULT_SONGS = [
+      { code: "101", title: "Buwan", artist: "Juan Karlos", region: "OPM", bpm: 92, scale: [261.63, 293.66, 329.63, 392.00, 440.00], lyrics: ["Ako'y sayo ikaw ay akin", "Ganda mo sa paningin", "Ako ngayo'y nag-iisa", "Sana ay tabihan na", "Sa ilalim ng puting ilaw", "Sa dilaw na buwan", "Pakinggan mo ang aking sigaw", "Sa dilaw na buwan"] },
+      { code: "102", title: "Tadhana", artist: "Up Dharma Down", region: "OPM", bpm: 104, scale: [293.66, 329.63, 369.99, 440.00, 493.88], lyrics: ["Sa hindi inaasahang", "Pagtatagpo ng mga mundo", "May minsan lang na nagdugtong", "Damang dama na ang ugong nito", "Di pa ba sapat ang sakit at lahat", "Na hinding hindi ko ipararanas sayo"] },
+      { code: "103", title: "Anak", artist: "Freddie Aguilar", region: "OPM", bpm: 84, scale: [220.00, 261.63, 293.66, 329.63, 392.00], lyrics: ["Nang isilang ka sa mundong ito", "Laking tuwa ng magulang mo", "At ang kamay nila ang iyong ilaw", "At ang nanay at tatay mo'y", "Di malaman ang gagawin", "Minamasdan pati pagtulog mo"] },
+      { code: "201", title: "Bohemian Rhapsody", artist: "Queen", region: "Rock", bpm: 76, scale: [233.08, 261.63, 293.66, 349.23, 392.00], lyrics: ["Is this the real life?", "Is this just fantasy?", "Caught in a landslide", "No escape from reality", "Open your eyes, look up to the skies and see", "I'm just a poor boy, I need no sympathy"] },
+      { code: "202", title: "Hotel California", artist: "Eagles", region: "Rock", bpm: 75, scale: [246.94, 277.18, 329.63, 369.99, 415.30], lyrics: ["On a dark desert highway", "Cool wind in my hair", "Warm smell of colitas", "Rising up through the air", "Welcome to the Hotel California", "Such a lovely place, such a lovely face"] },
+      { code: "301", title: "Dynamite", artist: "BTS", region: "K-Pop", bpm: 114, scale: [277.18, 311.13, 369.99, 415.30, 493.88], lyrics: ["'Cause I, I, I'm in the stars tonight", "So watch me bring the fire and set the night alight", "Shoes on, get up in the morn'", "Cup of milk, let's rock and roll", "Shining through the city with a little funk and soul", "So I'ma light it up like dynamite, woah"] },
+      { code: "302", title: "APT.", artist: "ROSÉ & Bruno Mars", region: "K-Pop", bpm: 149, scale: [261.63, 311.13, 349.23, 392.00, 466.16], lyrics: ["Apateu, apateu", "Apateu, apateu", "Kissy face, kissy face sent to your phone", "But I'm trying to kiss your lips for real", "Don't you want me like I want you, baby?", "Don't you need me like I need you now?"] },
+      { code: "401", title: "First Love", artist: "Hikaru Utada", region: "J-Pop", bpm: 88, scale: [261.63, 293.66, 329.63, 392.00, 440.00], lyrics: ["Saigo no kisu wa tabako no flavor ga shita", "Nigakute setsunai kaori", "Ashita no imagoro ni wa", "Anata wa doko ni irun darou", "You are always gonna be my love", "Itsuka dareka to mata koi ni ochitemo"] },
+      { code: "402", title: "Idol", artist: "YOASOBI", region: "J-Pop", bpm: 166, scale: [293.66, 349.23, 392.00, 440.00, 523.25], lyrics: ["Muteki no egao de arasu media", "Shiritai sono himitsu mysterious", "Kyou wa nani tabeta?", "Suki na hon wa?", "Dare ni mo ienai himitsu dake ga", "Muteki no aidoru sa"] },
+      { code: "501", title: "Despacito", artist: "Luis Fonsi", region: "Latin", bpm: 89, scale: [246.94, 293.66, 329.63, 369.99, 440.00], lyrics: ["Sí, sabes que ya llevo un rato mirándote", "Tengo que bailar contigo hoy", "Despacito", "Quiero respirar tu cuello despacito", "Deja que te diga cosas al oído", "Para que te acuerdes si no estás conmigo"] },
+      { code: "502", title: "La Bamba", artist: "Ritchie Valens", region: "Latin", bpm: 144, scale: [261.63, 329.63, 392.00, 440.00, 523.25], lyrics: ["Para bailar la bamba", "Para bailar la bamba se necesita", "Una poca de gracia", "Una poca de gracia pa' mí, pa' ti", "Y arriba, y arriba", "Yo no soy marinero, soy capitán"] },
+      { code: "601", title: "My Way", artist: "Frank Sinatra", region: "Global Pop", bpm: 76, scale: [261.63, 329.63, 392.00, 440.00, 493.88], lyrics: ["And now, the end is near", "And so I face the final curtain", "My friend, I'll say it clear", "I'll state my case, of which I'm certain", "I've lived a life that's full", "I traveled each and every highway", "And more, much more than this", "I did it my way"] },
+      { code: "602", title: "Shape of You", artist: "Ed Sheeran", region: "Global Pop", bpm: 96, scale: [277.18, 329.63, 369.99, 415.30, 493.88], lyrics: ["The club isn't the best place to find a lover", "So the bar is where I go", "Girl, you know I want your love", "Your love was handmade for somebody like me", "I'm in love with the shape of you", "We push and pull like a magnet do"] },
+      { code: "701", title: "Essence", artist: "Wizkid ft. Tems", region: "Afrobeats", bpm: 104, scale: [220.00, 261.63, 329.63, 392.00, 440.00], lyrics: ["You don't need no other body", "You don't need no other body", "Only you fi hold my body", "Only you fi hold my body", "Yeah, yeah, yeah", "Show me what you got tonight"] }
+    ];
+
+    let songs = JSON.parse(localStorage.getItem('mobile_videoke_songs') || 'null') || DEFAULT_SONGS;
+    let queue = [];
+    let activeRegion = 'ALL';
+    let currentSong = null;
+    let isPlaying = false;
+    let lyricIndex = 0;
+    let pitchShift = 0;
+    let tempoPercent = 100;
+    let stepTimer = null;
+    let audioCtx = null;
+    let micStream = null;
+    let currentScore = 92;
+    let dialedCode = '';
+
+    const regions = ['ALL', 'OPM', 'Global Pop', 'K-Pop', 'J-Pop', 'Latin', 'Rock', 'Afrobeats'];
+
+    function init() {
+      const vis = document.getElementById('visualizer');
+      for (let i = 0; i < 18; i++) {
+        const b = document.createElement('div');
+        b.className = 'v-bar';
+        vis.appendChild(b);
+      }
+      renderChips();
+      renderSongs();
+      updateQueueUI();
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    function switchView(name) {
+      ['songs', 'remote', 'queue', 'mixer'].forEach(v => {
+        document.getElementById('panel-' + v).classList.toggle('active', v === name);
+        document.getElementById('nav-' + v).classList.toggle('active', v === name);
+      });
+      if (name === 'queue') updateQueueUI();
+    }
+
+    function renderChips() {
+      document.getElementById('regionChips').innerHTML = regions.map(r =>
+        `<button class="chip ${activeRegion === r ? 'active' : ''}" onclick="setRegion('${r}')">${r}</button>`
+      ).join('');
+    }
+
+    function setRegion(r) {
+      activeRegion = r;
+      renderChips();
+      renderSongs();
+    }
+
+    function renderSongs() {
+      const q = document.getElementById('searchInput').value.toLowerCase().trim();
+      const filtered = songs.filter(s => {
+        const matchR = activeRegion === 'ALL' || s.region === activeRegion;
+        const matchQ = !q || s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q) || s.code.includes(q) || s.region.toLowerCase().includes(q);
+        return matchR && matchQ;
+      });
+      document.getElementById('songList').innerHTML = filtered.map(s => `
+        <div class="song-item">
+          <div class="song-left">
+            <div class="code-badge">${s.code}</div>
+            <div class="song-details">
+              <h3>${s.title}</h3>
+              <p>${s.artist} • ${s.region}</p>
+            </div>
+          </div>
+          <div class="song-actions">
+            <button class="btn-q" onclick="reserveSong('${s.code}')">+Q</button>
+            <button class="btn-sing" onclick="playNow('${s.code}')">Sing</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    /* Mobile Keypad Remote Logic */
+    function pressDigit(d) {
+      if (dialedCode.length >= 4) dialedCode = '';
+      dialedCode += d;
+      updateKeypadDisplay();
+    }
+
+    function clearDigits() {
+      dialedCode = '';
+      updateKeypadDisplay();
+    }
+
+    function updateKeypadDisplay() {
+      document.getElementById('keypadDigits').textContent = dialedCode || '---';
+      const found = songs.find(s => s.code === dialedCode);
+      document.getElementById('keypadPreview').textContent = found
+        ? `${found.title} — ${found.artist}`
+        : (dialedCode ? 'Keep typing or tap RESERVE' : 'Enter 3-digit song code (e.g. 101)');
+    }
+
+    function submitDigits() {
+      if (!dialedCode) return;
+      const found = songs.find(s => s.code === dialedCode);
+      if (!found) {
+        showToast(`Code ${dialedCode} not found`);
+        clearDigits();
+        return;
+      }
+      reserveSong(dialedCode);
+      clearDigits();
+    }
+
+    function reserveSong(code) {
+      const song = songs.find(s => s.code === code);
+      if (!song) return;
+      queue.push(song);
+      updateQueueUI();
+      showToast(`Reserved [${song.code}] ${song.title}`);
+      if (!currentSong) nextSong();
+    }
+
+    function playNow(code) {
+      const song = songs.find(s => s.code === code);
+      if (song) startSong(song);
+    }
+
+    function nextSong() {
+      if (queue.length === 0) {
+        stopSong();
+        showToast('Queue is empty');
+        return;
+      }
+      const next = queue.shift();
+      updateQueueUI();
+      startSong(next);
+    }
+
+    function updateQueueUI() {
+      document.getElementById('queueBadge').textContent = queue.length;
+      const list = document.getElementById('queueList');
+      if (queue.length === 0) {
+        list.innerHTML = `<p style="text-align:center;color:var(--muted);padding:32px 12px;">Queue is empty.<br/>Tap <b>+Q</b> on any song or use the <b>Remote</b> keypad.</p>`;
+        return;
+      }
+      list.innerHTML = queue.map((s, idx) => `
+        <div class="song-item">
+          <div class="song-left">
+            <div class="code-badge">#${idx + 1}</div>
+            <div class="song-details">
+              <h3>[${s.code}] ${s.title}</h3>
+              <p>${s.artist}</p>
+            </div>
+          </div>
+          <button class="btn-q" onclick="removeQueue(${idx})">✕</button>
+        </div>
+      `).join('');
+    }
+
+    function removeQueue(idx) {
+      queue.splice(idx, 1);
+      updateQueueUI();
+    }
+
+    /* Web Audio Engine */
+    function ensureAudio() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    function playSynthBeat(song, step) {
+      ensureAudio();
+      const now = audioCtx.currentTime;
+      const scale = song.scale || [261.63, 293.66, 329.63, 392.00, 440.00];
+      const baseFreq = scale[step % scale.length];
+      const shiftedFreq = baseFreq * Math.pow(2, pitchShift / 12);
+
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(shiftedFreq, now);
+      gain.gain.setValueAtTime(0.14, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.42);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.44);
+
+      if (step % 2 === 0) {
+        const bass = audioCtx.createOscillator();
+        const bGain = audioCtx.createGain();
+        bass.type = 'sine';
+        bass.frequency.setValueAtTime(shiftedFreq / 2, now);
+        bGain.gain.setValueAtTime(0.18, now);
+        bGain.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
+        bass.connect(bGain);
+        bGain.connect(audioCtx.destination);
+        bass.start(now);
+        bass.stop(now + 0.34);
+      }
+    }
+
+    function startSong(song) {
+      clearInterval(stepTimer);
+      currentSong = song;
+      lyricIndex = 0;
+      isPlaying = true;
+      currentScore = Math.floor(88 + Math.random() * 11);
+
+      document.getElementById('stageCode').textContent = `PLAYING • CODE ${song.code}`;
+      document.getElementById('stageTitle').textContent = `${song.title} — ${song.artist}`;
+      document.getElementById('scoreDisplay').textContent = '--';
+      document.getElementById('playPauseBtn').textContent = '⏸';
+
+      updateLyrics();
+      runLoop();
+    }
+
+    function updateLyrics() {
+      if (!currentSong) return;
+      document.getElementById('lyricCurrent').textContent = currentSong.lyrics[lyricIndex] || '♪ Instrumental ♪';
+      document.getElementById('lyricNext').textContent = currentSong.lyrics[lyricIndex + 1] || '★ Finishing Song... ★';
+    }
+
+    function runLoop() {
+      clearInterval(stepTimer);
+      if (!currentSong || !isPlaying) return;
+      let beat = 0;
+      const effBpm = currentSong.bpm * (tempoPercent / 100);
+      const ms = Math.max(240, Math.round(60000 / effBpm));
+
+      stepTimer = setInterval(() => {
+        if (!isPlaying || !currentSong) return;
+        playSynthBeat(currentSong, beat);
+        document.querySelectorAll('.v-bar').forEach(b => b.style.height = (4 + Math.floor(Math.random() * 16)) + 'px');
+        beat++;
+
+        if (beat % 4 === 0) {
+          lyricIndex++;
+          if (lyricIndex >= currentSong.lyrics.length) {
+            clearInterval(stepTimer);
+            document.getElementById('scoreDisplay').textContent = currentScore;
+            document.getElementById('lyricCurrent').textContent = `🎉 SCORE: ${currentScore} 🎉`;
+            document.getElementById('lyricNext').textContent = queue.length > 0 ? 'Next song starting...' : 'Select another song!';
+            setTimeout(() => {
+              if (queue.length > 0) nextSong();
+              else isPlaying = false;
+            }, 3200);
+            return;
+          }
+          updateLyrics();
+        }
+      }, ms);
+    }
+
+    function togglePlay() {
+      if (!currentSong) {
+        if (queue.length > 0) nextSong();
+        else playNow(songs[0].code);
+        return;
+      }
+      isPlaying = !isPlaying;
+      document.getElementById('playPauseBtn').textContent = isPlaying ? '⏸' : '▶ Play';
+      if (isPlaying) runLoop();
+      else clearInterval(stepTimer);
+    }
+
+    function stopSong() {
+      clearInterval(stepTimer);
+      isPlaying = false;
+      currentSong = null;
+      document.getElementById('stageCode').textContent = 'READY • TAP ANY SONG';
+      document.getElementById('stageTitle').textContent = 'Global Videoke Lounge';
+      document.getElementById('lyricCurrent').textContent = '♪ Ready to Sing! ♪';
+      document.getElementById('lyricNext').textContent = 'Use Songbook or Remote Keypad below';
+      document.getElementById('playPauseBtn').textContent = '▶ Play';
+    }
+
+    function changePitch(d) {
+      pitchShift = Math.max(-6, Math.min(6, pitchShift + d));
+      document.getElementById('pitchVal').textContent = (pitchShift > 0 ? '+' : '') + pitchShift;
+    }
+    function resetPitch() { pitchShift = 0; document.getElementById('pitchVal').textContent = '0'; }
+
+    function changeTempo(d) {
+      tempoPercent = Math.max(70, Math.min(140, tempoPercent + d));
+      document.getElementById('tempoVal').textContent = tempoPercent + '%';
+      if (isPlaying) runLoop();
+    }
+    function resetTempo() {
+      tempoPercent = 100;
+      document.getElementById('tempoVal').textContent = '100%';
+      if (isPlaying) runLoop();
+    }
+
+    async function toggleMic() {
+      const btn = document.getElementById('micBtn');
+      if (micStream) {
+        micStream.getTracks().forEach(t => t.stop());
+        micStream = null;
+        document.getElementById('micStatus').textContent = 'OFF';
+        btn.classList.remove('active');
+        btn.textContent = 'Tap to Turn On Live Mic + Echo';
+        showToast('Microphone OFF');
+        return;
+      }
+      try {
+        ensureAudio();
+        micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const src = audioCtx.createMediaStreamSource(micStream);
+        const delay = audioCtx.createDelay();
+        delay.delayTime.value = 0.22;
+        const fb = audioCtx.createGain();
+        fb.gain.value = 0.28;
+        delay.connect(fb);
+        fb.connect(delay);
+        src.connect(audioCtx.destination);
+        src.connect(delay);
+        delay.connect(audioCtx.destination);
+
+        document.getElementById('micStatus').textContent = 'LIVE + ECHO';
+        btn.classList.add('active');
+        btn.textContent = '🎙 Live Mic Active (Tap to Mute)';
+        showToast('Phone Mic + Echo Enabled!');
+      } catch (e) {
+        showToast('Allow microphone access in browser');
+      }
+    }
+
+    function openSheet() { document.getElementById('addSheet').classList.add('open'); }
+    function closeSheet() { document.getElementById('addSheet').classList.remove('open'); }
+
+    function saveNewSong() {
+      const title = document.getElementById('newTitle').value.trim();
+      const artist = document.getElementById('newArtist').value.trim();
+      const region = document.getElementById('newRegion').value;
+      const bpm = parseInt(document.getElementById('newBpm').value, 10) || 110;
+      const raw = document.getElementById('newLyrics').value.trim();
+      if (!title || !artist || !raw) {
+        showToast('Fill title, artist, and lyrics');
+        return;
+      }
+      const nextCode = String(Math.max(...songs.map(s => parseInt(s.code, 10) || 800)) + 1);
+      songs.unshift({
+        code: nextCode, title, artist, region, bpm,
+        scale: [261.63, 293.66, 329.63, 392.00, 440.00],
+        lyrics: raw.split('
+').map(l => l.trim()).filter(Boolean)
+      });
+      localStorage.setItem('mobile_videoke_songs', JSON.stringify(songs));
+      renderSongs();
+      closeSheet();
+      showToast(`Added [${nextCode}] ${title}`);
+    }
+
+    if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    }
+
+    init();
+  </script>
+</body>
+</html>
